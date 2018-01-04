@@ -1,9 +1,16 @@
+const bluebird = require('bluebird');
+const request = bluebird.promisifyAll(require('request'), {
+    multiArgs: true
+});
+
 /**
  * GET /
- * Home page.
+ * data page.
  */
 exports.index = (req, res) => {
-  res.render('home', {
-    title: 'Home'
-  });
+
+    res.render('home', {
+        title: 'Home',
+    });
+
 };
