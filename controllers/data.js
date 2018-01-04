@@ -1,3 +1,5 @@
+const http = require('http');
+const https = require('https');
 const bluebird = require('bluebird');
 const request = bluebird.promisifyAll(require('request'), {
     multiArgs: true
@@ -13,76 +15,78 @@ let urlWorks = "https://geoservices.grand-nancy.org/arcgis/rest/services/public/
  * GET /
  * data page.
  */
-exports.loadApiParking = (req, res) => {
-
-    request.get(urlParking, (err, request, body) => {
-        if (err) {
-            // Recupere les donnees du parking
-            let b = '';
-            res.on('data', (data) => {
-              b += data;
-            }).on('end', () => {
-              let parkings = JSON.parse(b).features;
-              for (let i = 0; i < parkings.length; i++) {
-
-                let attributes = parkings[i].attributes;
-                let geometry = parkings[i].geometry;
-
-                var parkingInsert = {
-                  nom: attributes['NOM'],
-                  places: attributes['PLACES'],
-                  complet: attributes['COMPLET'],
-                  ferme: attributes['FERME'],
-                  ouvert: attributes['OUVERT'],
-                  capacite: attributes['CAPACITE'],
-                  id: attributes['ID'],
-                  adresse: attributes['ADRESSE'],
-                  date_maj: attributes['DATE_MAJ'],
-                  automatique: attributes['AUTOMATIQUE'],
-                  taux_occup: attributes['TAUX_OCCUP'],
-                  taux_dispo: attributes['TAUX_DISPO'],
-                  lien: attributes['LIEN'],
-                  x: geometry['x'],
-                  y: geometry['y']
-                }
-                // Insertion dans la Bdd
-                conn.collection('parking').insert(parkingInsert);
-              }
-            }).on('error', (e) => {
-              console.log('Error : ' + e.message);
-            });
-
-            return next(err);
-        }
-        if (request.statusCode === 403) {
-            return next(new Error('Invalide'));
-        }
-        res.render('home', {
-            title: 'Home',
-            body
-        });
+exports.loadApiParking = (req,res) =>{
+    resfreshParking();
+    res.render('home', {
+        title: 'Home',
     });
-
 };
 
-exports.loadApiTravaux = (req, res) => {
+exports.resfreshParking=()=>{
+    conn.collection("parking").remove({});
 
-    request.get(urlWorks, (err, request, body) => {
-        console.log(err);
-        if (err) {
-            // Recupere les donnees du parking
-            let b = '';
-            res.on('data', (data) => {
-              b += data;
-            }).on('end', () => {
-              let works = JSON.parse(b).features;
-              for (let i = 0; i < works.length; i++) {
+    https.get(urlParking, (result) => {
+    // Recupere les donnees du parking
+    let body = '';
+    result.on('data', (data) => {
+      body += data;
+    }).on('end', () => {
+      let parkings = JSON.parse(body).features;
+      for (let i = 0; i < parkings.length; i++) {
 
-                let attributes = works[i].attributes;
-                let geometry = works[i].geometry;
+        let attributes = parkings[i].attributes;
+        let geometry = parkings[i].geometry;
 
-                var workInsert = {
-                    type_intervention: attributes['TYPE_INTERVENTION'],
+        var parkingInsert = {
+          nom: attributes['NOM'],
+          places: attributes['PLACES'],
+          complet: attributes['COMPLET'],
+          ferme: attributes['FERME'],
+          ouvert: attributes['OUVERT'],
+          capacite: attributes['CAPACITE'],
+          id: attributes['ID'],
+          adresse: attributes['ADRESSE'],
+          date_maj: attributes['DATE_MAJ'],
+          automatique: attributes['AUTOMATIQUE'],
+          taux_occup: attributes['TAUX_OCCUP'],
+          taux_dispo: attributes['TAUX_DISPO'],
+          lien: attributes['LIEN'],
+          x: geometry['x'],
+          y: geometry['y']
+        }
+        // Insertion dans la Bdd
+        conn.collection('parking').insert(parkingInsert);
+      }
+    }).on('error', (e) => {
+      console.log('Error : ' + e.message);
+    });
+  });
+}
+
+exports.loadApiTravaux = (req,res) =>{
+    refreshWorks();
+    res.render('home', {
+        title: 'Home',
+    });
+};
+
+exports.refreshWorks=()=>{
+    conn.collection("parking").remove({});
+
+    https.get(urlWorks, (result) => {
+    // Recupere les donnees du parking
+    let body = '';
+    result.on('data', (data) => {
+      body += data;
+    }).on('end', () => {
+      let works = JSON.parse(body).features;
+      for (let i = 0; i < works.length; i++) {
+
+        let attributes = works[i].attributes;
+        let geometry = works[i].geometry;
+
+        var worksInsert = {
+          type_intervention: attributes['TYPE_INTERVENTION'],
                     libelle_travaux: attributes['LIBELLE_TRAVAUX'],
                     intervenant: attributes['INTERVENANT'],
                     niveau_gene: attributes['NIVEAU_GENE'],
@@ -99,23 +103,12 @@ exports.loadApiTravaux = (req, res) => {
                     date_fin: attributes['DATE_FIN'],
                     x: geometry['x'],
                     y: geometry['y']
-                }
-                // Insertion dans la Bdd
-                conn.collection('work').insert(workInsert);
-              }
-            }).on('error', (e) => {
-              console.log('Error : ' + e.message);
-            });
-
-            return next(err);
         }
-        if (request.statusCode === 403) {
-            return next(new Error('Invalide'));
-        }
-        res.render('home', {
-            title: 'Home',
-            body
-        });
+        // Insertion dans la Bdd
+        conn.collection('work').insert(worksInsert);
+      }
+    }).on('error', (e) => {
+      console.log('Error : ' + e.message);
     });
-
-};
+  });
+}

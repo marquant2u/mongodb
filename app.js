@@ -139,6 +139,11 @@ app.get('/account/unlink/:provider', passportConfig.isAuthenticated, userControl
 app.get('/api_parking', dataController.loadApiParking);
 app.get('/api_travaux', dataController.loadApiTravaux);
 
+function refreshData(){
+  dataController.refreshWorks();
+  dataController.resfreshParking();
+}
+
 /**
  * API examples routes.
  */
@@ -231,6 +236,8 @@ app.use(errorHandler());
 app.listen(app.get('port'), () => {
   console.log('%s App is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));
   console.log('  Press CTRL-C to stop\n');
+  setInterval(refreshData, (1 * 60 * 1000)); // Toutes les 1 min, temps en millisec
+  console.log("listening on port 3000");
 });
 
 module.exports = app;
