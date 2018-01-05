@@ -1,9 +1,10 @@
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 const parkingSchema = new mongoose.Schema({
-    objectId: { type: ObjectId, unique: true },
+    objectId: { type: Schema.Types.ObjectId},
     nom: String,
     places: Number,
     complet: Boolean,
@@ -20,3 +21,6 @@ const parkingSchema = new mongoose.Schema({
     x: Number,
     y: Number
 }, { timestamps: true });
+
+const Parking = mongoose.model('Parking', parkingSchema);
+module.exports = Parking;

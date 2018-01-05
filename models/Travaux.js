@@ -1,9 +1,10 @@
 const bcrypt = require('bcrypt-nodejs');
 const crypto = require('crypto');
 const mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 const travauxSchema = new mongoose.Schema({
-    objectId: { type: ObjectId, unique: true },
+    objectId: { type: Schema.Types.ObjectId},
     type_intervention: String,
     libelle_travaux: String,
     intervenant: String,
@@ -22,3 +23,6 @@ const travauxSchema = new mongoose.Schema({
     x: Number,
     y: Number
 }, { timestamps: true });
+
+const Travaux = mongoose.model('Travaux', travauxSchema);
+module.exports = Travaux;

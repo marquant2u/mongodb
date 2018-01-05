@@ -236,7 +236,7 @@ app.use(errorHandler());
 app.listen(app.get('port'), () => {
   console.log('%s App is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));
   console.log('  Press CTRL-C to stop\n');
-  setInterval(refreshData, (1 * 60 * 1000)); // Toutes les 1 min, temps en millisec
+  setInterval(refreshData, (5 * 60 * 1000)); // Toutes les 1 min, temps en millisec
   console.log("listening on port 3000");
 });
 
